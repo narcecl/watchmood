@@ -5,6 +5,8 @@ import { searchAll } from '@/lib/tmdb';
 import { Input } from '@/components/ui/input';
 import MediaCard from './MediaCard';
 import { useDebounce } from '@/hooks/useDebounce';
+import { Spinner } from '@/components/ui/spinner';
+import { X } from 'lucide-react';
 
 interface SearchTabProps {
     apiKey: string;
@@ -16,7 +18,11 @@ export default function SearchTab({ apiKey, watchlist, onAdd }: SearchTabProps) 
     const [query, setQuery] = useState('');
     const debouncedQuery = useDebounce(query, 500);
 
-    const { data: results = [], isFetching, isError } = useQuery({
+    const {
+        data: results = [],
+        isFetching,
+        isError,
+    } = useQuery({
         queryKey: ['search', debouncedQuery, apiKey],
         queryFn: () => searchAll(debouncedQuery, apiKey),
         enabled: debouncedQuery.trim().length > 0,
@@ -33,13 +39,22 @@ export default function SearchTab({ apiKey, watchlist, onAdd }: SearchTabProps) 
                     placeholder="Busca una película o serie..."
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    className="h-11"
-                    autoFocus
+                    className="h-12"
                 />
                 {isFetching && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs animate-pulse">
-                        Buscando...
-                    </span>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <Spinner />
+                    </div>
+                )}
+                {query.length > 0 && !isFetching && (
+                    <button
+                        className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white"
+                        onClick={() => setQuery('')}
+                        aria-label="Limpiar búsqueda"
+                        type="button"
+                    >
+                        <X size={16} />
+                    </button>
                 )}
             </div>
 
@@ -69,9 +84,12 @@ export default function SearchTab({ apiKey, watchlist, onAdd }: SearchTabProps) 
             )}
 
             {!isFetching && debouncedQuery && results.length === 0 && !isError && (
-                <p className="text-muted-foreground text-sm text-center py-8">
-                    Sin resultados para "{debouncedQuery}"
-                </p>
+                <div className="px-4 py-8 text-center text-muted-foreground border-2 border-dashed rounded-lg">
+                    <p className="text-lg text-white font-medium">Sin resultados</p>
+                    <p className="text-sm mt-1">
+                        No se encontraron resultados para "{debouncedQuery}"
+                    </p>
+                </div>
             )}
 
             {!query && (

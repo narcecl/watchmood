@@ -8,6 +8,7 @@ import ApiKeyModal from '@/components/ApiKeyModal';
 import SettingsModal from '@/components/SettingsModal';
 import SearchTab from '@/components/SearchTab';
 import WatchlistTab from '@/components/WatchlistTab';
+import Logo from '@/components/Logo';
 
 export default function App() {
     const [apiKey, setApiKey] = useLocalStorage<string>(STORAGE_KEYS.apiKey, '');
@@ -55,9 +56,7 @@ export default function App() {
                 <div className="max-w-5xl mx-auto px-4">
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
                         <div className="flex items-center gap-2">
-                            <h1 className="text-xl font-light">
-                                Watch<span className="text-amber-500 font-bold">Mood</span>
-                            </h1>
+                            <Logo />
                         </div>
 
                         <div className="flex items-center gap-3">

@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import Logo from './Logo';
 
 interface ApiKeyModalProps {
     onSave: (key: string) => void;
@@ -34,7 +35,7 @@ export default function ApiKeyModal({ onSave }: ApiKeyModalProps) {
             >
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2 text-xl">
-                        🎬 WatchMood
+                        <Logo />
                     </DialogTitle>
                     <DialogDescription>
                         Para buscar películas necesitamos tu API key de TMDB. Se guarda solo en tu
@@ -58,6 +59,7 @@ export default function ApiKeyModal({ onSave }: ApiKeyModalProps) {
                     >
                         Guardar y continuar
                     </Button>
+
                     <p className="text-muted-foreground text-xs text-center">
                         Consigue tu key gratis en{' '}
                         <span className="text-primary font-medium">

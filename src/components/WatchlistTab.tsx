@@ -30,11 +30,10 @@ export default function WatchlistTab({
 
     if (watchlist.length === 0) {
         return (
-            <div className="text-center py-20 text-muted-foreground">
-                <p className="text-4xl mb-4">🎬</p>
-                <p className="text-lg font-medium">Tu lista está vacía</p>
+            <div className="px-4 py-8 text-center text-muted-foreground border-2 border-dashed rounded-lg">
+                <p className="text-lg text-white font-medium">Tu lista está vacía</p>
                 <p className="text-sm mt-1">
-                    Busca películas en la pestaña "Buscar" para añadirlas
+                    Busca películas en la pestaña "Buscar" y añadelas a tu lista para verlas aquí
                 </p>
             </div>
         );
@@ -66,7 +65,8 @@ export default function WatchlistTab({
 
             {filtered.length === 0 && (
                 <div className="px-4 py-8 text-center text-muted-foreground border-2 border-dashed rounded-lg">
-                    <p className="text-muted-foreground text-sm text-center py-8">
+                    <p className="text-lg text-white font-medium">Sin resultados</p>
+                    <p className="text-sm mt-1">
                         Ninguna película coincide con los filtros seleccionados
                     </p>
                 </div>

@@ -183,12 +183,11 @@ export default function MediaCard(props: MediaCardProps) {
                             </span>
                         )}
                         <Button
-                            size="sm"
                             variant={props.existingEntry ? 'outline' : 'default'}
-                            className="w-full text-xs h-7"
+                            className="w-full text-xs"
                             onClick={() => setDialogOpen(true)}
                         >
-                            {props.existingEntry ? 'Editar moods' : '+ Añadir'}
+                            {props.existingEntry ? 'Editar moods' : 'Añadir a mi lista'}
                         </Button>
 
                         <Dialog

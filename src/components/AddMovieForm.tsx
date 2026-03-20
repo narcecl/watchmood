@@ -38,8 +38,9 @@ export default function AddMovieForm({
             className="flex flex-col gap-4"
         >
             <div className="flex flex-col gap-0.5">
-                <p className="text-xs text-muted-foreground font-medium px-1 mb-2">
-                    ¿Con qué mood lo verías?
+                <p className="text-muted-foreground px-1 mb-4">
+                    ¿Qué mood se te viene a la cabeza con esta{' '}
+                    {(_result?.mediaType === 'movie' && 'película') || 'serie'}?
                 </p>
                 {MOODS.map((mood) => (
                     <label
@@ -62,25 +63,23 @@ export default function AddMovieForm({
                 ))}
             </div>
 
-            <Input
+            {/* <Input
                 placeholder="Nota opcional (¿por qué la guardas?)"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 className="text-xs h-8"
-            />
+            /> */}
 
             <div className="flex gap-2">
                 <Button
                     type="submit"
-                    size="sm"
                     disabled={selectedMoods.length === 0}
                     className="flex-1"
                 >
-                    Guardar en lista
+                    Añadir a mi lista
                 </Button>
                 <Button
                     type="button"
-                    size="sm"
                     variant="outline"
                     onClick={onCancel}
                 >
