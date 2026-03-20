@@ -15,12 +15,11 @@ interface AddMovieFormProps {
 export default function AddMovieForm({
     result: _result,
     initialMoods = [],
-    initialNote = '',
     onAdd,
     onCancel,
 }: AddMovieFormProps) {
     const [selectedMoods, setSelectedMoods] = useState<MoodId[]>(initialMoods);
-    const [note, setNote] = useState(initialNote);
+    // const [note, setNote] = useState(initialNote);
 
     const toggleMood = (id: MoodId) =>
         setSelectedMoods((prev) =>
@@ -29,7 +28,8 @@ export default function AddMovieForm({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onAdd(selectedMoods, note.trim());
+        // onAdd(selectedMoods, note.trim());
+        onAdd(selectedMoods, ''); // TODO: add note input back in
     };
 
     return (
