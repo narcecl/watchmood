@@ -1,72 +1,92 @@
-import { useState } from 'react'
-import { MOODS, MoodId, TMDBMovie } from '../types'
+import { useState } from 'react';
+import { MOODS, MoodId, TMDBResult } from '@/types';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
-interface Props {
-  movie: TMDBMovie
-  onAdd: (moods: MoodId[], note: string) => void
-  onCancel: () => void
+interface AddMovieFormProps {
+    result?: TMDBResult;
+    initialMoods?: MoodId[];
+    initialNote?: string;
+    onAdd: (moods: MoodId[], note: string) => void;
+    onCancel: () => void;
 }
 
-export default function AddMovieForm({ movie: _movie, onAdd, onCancel }: Props) {
-  const [selectedMoods, setSelectedMoods] = useState<MoodId[]>([])
-  const [note, setNote] = useState('')
+export default function AddMovieForm({
+    result: _result,
+    initialMoods = [],
+    initialNote = '',
+    onAdd,
+    onCancel,
+}: AddMovieFormProps) {
+    const [selectedMoods, setSelectedMoods] = useState<MoodId[]>(initialMoods);
+    const [note, setNote] = useState(initialNote);
 
-  const toggleMood = (id: MoodId) => {
-    setSelectedMoods(prev =>
-      prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]
-    )
-  }
+    const toggleMood = (id: MoodId) =>
+        setSelectedMoods((prev) =>
+            prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id],
+        );
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onAdd(selectedMoods, note.trim())
-  }
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onAdd(selectedMoods, note.trim());
+    };
 
-  return (
-    <form
-      onSubmit={handleSubmit}
-      className="mt-3 p-3 bg-gray-800 rounded-xl border border-gray-700 flex flex-col gap-3"
-    >
-      <p className="text-xs text-gray-400 font-medium">¿Con qué mood lo verías?</p>
-      <div className="flex flex-wrap gap-1.5">
-        {MOODS.map(mood => (
-          <button
-            key={mood.id}
-            type="button"
-            onClick={() => toggleMood(mood.id)}
-            className={`text-xs px-2.5 py-1 rounded-full border transition font-medium ${
-              selectedMoods.includes(mood.id)
-                ? 'bg-indigo-600 border-indigo-500 text-white'
-                : 'bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-400'
-            }`}
-          >
-            {mood.label}
-          </button>
-        ))}
-      </div>
-      <input
-        type="text"
-        placeholder="Nota opcional (¿por qué la guardas?)"
-        value={note}
-        onChange={e => setNote(e.target.value)}
-        className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition"
-      />
-      <div className="flex gap-2">
-        <button
-          type="submit"
-          disabled={selectedMoods.length === 0}
-          className="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold py-2 rounded-lg transition"
+    return (
+        <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-4"
         >
-          Guardar en lista
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-4 text-sm text-gray-400 hover:text-white border border-gray-600 rounded-lg transition"
-        >
-          Cancelar
-        </button>
-      </div>
-    </form>
-  )
+            <div className="flex flex-col gap-0.5">
+                <p className="text-xs text-muted-foreground font-medium px-1 mb-2">
+                    ¿Con qué mood lo verías?
+                </p>
+                {MOODS.map((mood) => (
+                    <label
+                        key={mood.id}
+                        className={cn(
+                            'border border-neutral-900 flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-colors text-sm select-none bg-neutral-950',
+                            selectedMoods.includes(mood.id)
+                                ? 'bg-neutral-900 text-primary'
+                                : 'hover:bg-accent',
+                        )}
+                    >
+                        <input
+                            type="checkbox"
+                            checked={selectedMoods.includes(mood.id)}
+                            onChange={() => toggleMood(mood.id)}
+                            className="w-4 h-4 rounded accent-primary cursor-pointer shrink-0"
+                        />
+                        {mood.label}
+                    </label>
+                ))}
+            </div>
+
+            <Input
+                placeholder="Nota opcional (¿por qué la guardas?)"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                className="text-xs h-8"
+            />
+
+            <div className="flex gap-2">
+                <Button
+                    type="submit"
+                    size="sm"
+                    disabled={selectedMoods.length === 0}
+                    className="flex-1"
+                >
+                    Guardar en lista
+                </Button>
+                <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={onCancel}
+                >
+                    Cancelar
+                </Button>
+            </div>
+        </form>
+    );
 }

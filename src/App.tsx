@@ -1,109 +1,121 @@
-import { useState } from 'react'
-import { MoodId, Status, TMDBMovie, WatchlistEntry } from './types'
-import { useLocalStorage } from './hooks/useLocalStorage'
-import ApiKeyModal from './components/ApiKeyModal'
-import SearchTab from './components/SearchTab'
-import WatchlistTab from './components/WatchlistTab'
-
-type Tab = 'search' | 'watchlist'
+import { useState } from 'react';
+import { MoodId, MediaType, Status, TMDBResult, WatchlistEntry } from '@/types';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { STORAGE_KEYS } from '@/lib/storage';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import ApiKeyModal from '@/components/ApiKeyModal';
+import SettingsModal from '@/components/SettingsModal';
+import SearchTab from '@/components/SearchTab';
+import WatchlistTab from '@/components/WatchlistTab';
 
 export default function App() {
-  const [apiKey, setApiKey] = useLocalStorage<string>('tmdb_api_key', '')
-  const [watchlist, setWatchlist] = useLocalStorage<WatchlistEntry[]>('watchmood_list', [])
-  const [tab, setTab] = useState<Tab>('search')
+    const [apiKey, setApiKey] = useLocalStorage<string>(STORAGE_KEYS.apiKey, '');
+    const [watchlist, setWatchlist] = useLocalStorage<WatchlistEntry[]>(STORAGE_KEYS.watchlist, []);
+    const [tab, setTab] = useState('search');
 
-  const handleAddMovie = (movie: TMDBMovie, moods: MoodId[], note: string) => {
-    const entry: WatchlistEntry = {
-      id: movie.id,
-      title: movie.title,
-      year: movie.release_date?.slice(0, 4) ?? '—',
-      poster: movie.poster_path,
-      rating: movie.vote_average,
-      moods,
-      note,
-      status: 'pendiente',
-      addedAt: Date.now(),
-    }
-    setWatchlist(prev => [entry, ...prev.filter(w => w.id !== movie.id)])
-  }
+    const handleAddMovie = (result: TMDBResult, moods: MoodId[], note: string) => {
+        const entry: WatchlistEntry = {
+            id: result.id,
+            mediaType: result.mediaType,
+            originalTitle: result.originalTitle,
+            title: result.title,
+            year: result.year,
+            poster: result.poster_path,
+            rating: result.vote_average,
+            moods,
+            note,
+            status: 'pendiente',
+            addedAt: Date.now(),
+        };
+        setWatchlist((prev) => [
+            entry,
+            ...prev.filter((w) => !(w.id === result.id && w.mediaType === result.mediaType)),
+        ]);
+    };
 
-  const handleUpdateStatus = (id: number, status: Status) => {
-    setWatchlist(prev => prev.map(w => w.id === id ? { ...w, status } : w))
-  }
+    const handleUpdateStatus = (id: number, mediaType: MediaType, status: Status) =>
+        setWatchlist((prev) =>
+            prev.map((w) => (w.id === id && w.mediaType === mediaType ? { ...w, status } : w)),
+        );
 
-  const handleDelete = (id: number) => {
-    setWatchlist(prev => prev.filter(w => w.id !== id))
-  }
+    const handleDelete = (id: number, mediaType: MediaType) =>
+        setWatchlist((prev) => prev.filter((w) => !(w.id === id && w.mediaType === mediaType)));
 
-  return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      {!apiKey && <ApiKeyModal onSave={setApiKey} />}
+    const handleEditEntry = (id: number, mediaType: MediaType, moods: MoodId[], note: string) =>
+        setWatchlist((prev) =>
+            prev.map((w) => (w.id === id && w.mediaType === mediaType ? { ...w, moods, note } : w)),
+        );
 
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-gray-950/90 backdrop-blur border-b border-gray-800">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">🎬</span>
-            <h1 className="text-lg font-bold text-white">WatchMood</h1>
-          </div>
+    return (
+        <div className="dark min-h-screen bg-background text-foreground flex flex-col gap-12">
+            {!apiKey && <ApiKeyModal onSave={setApiKey} />}
 
-          {/* Tabs */}
-          <nav className="flex gap-1 bg-gray-900 rounded-xl p-1 border border-gray-800">
-            <button
-              onClick={() => setTab('search')}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${
-                tab === 'search'
-                  ? 'bg-indigo-600 text-white'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              🔍 Buscar
-            </button>
-            <button
-              onClick={() => setTab('watchlist')}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-1.5 ${
-                tab === 'watchlist'
-                  ? 'bg-indigo-600 text-white'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              📋 Mi Lista
-              {watchlist.length > 0 && (
-                <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${
-                  tab === 'watchlist' ? 'bg-indigo-500 text-white' : 'bg-gray-700 text-gray-300'
-                }`}>
-                  {watchlist.length}
-                </span>
-              )}
-            </button>
-          </nav>
+            <header className="pt-8">
+                <div className="max-w-5xl mx-auto px-4">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-xl font-light">
+                                Watch<span className="text-amber-500 font-bold">Mood</span>
+                            </h1>
+                        </div>
 
-          {/* Reset API key */}
-          {apiKey && (
-            <button
-              onClick={() => { localStorage.removeItem('tmdb_api_key'); setApiKey('') }}
-              className="text-xs text-gray-600 hover:text-gray-400 transition"
-              title="Cambiar API key"
-            >
-              🔑
-            </button>
-          )}
+                        <div className="flex items-center gap-3">
+                            <SettingsModal
+                                apiKey={apiKey}
+                                onSaveApiKey={setApiKey}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main>
+                <div className="max-w-5xl mx-auto px-4">
+                    <Tabs
+                        value={tab}
+                        onValueChange={setTab}
+                        className="flex flex-col gap-6"
+                    >
+                        <TabsList>
+                            <TabsTrigger value="search">Buscar</TabsTrigger>
+                            <TabsTrigger
+                                value="watchlist"
+                                className="flex items-center gap-1.5"
+                            >
+                                Mi Lista
+                                {watchlist.length > 0 && (
+                                    <Badge
+                                        variant="secondary"
+                                        className="text-xs px-1.5 py-0 h-4"
+                                    >
+                                        {watchlist.length}
+                                    </Badge>
+                                )}
+                            </TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="search">
+                            {apiKey && (
+                                <SearchTab
+                                    apiKey={apiKey}
+                                    watchlist={watchlist}
+                                    onAdd={handleAddMovie}
+                                />
+                            )}
+                        </TabsContent>
+
+                        <TabsContent value="watchlist">
+                            <WatchlistTab
+                                watchlist={watchlist}
+                                onUpdateStatus={handleUpdateStatus}
+                                onDelete={handleDelete}
+                                onEdit={handleEditEntry}
+                            />
+                        </TabsContent>
+                    </Tabs>
+                </div>
+            </main>
         </div>
-      </header>
-
-      {/* Main */}
-      <main className="max-w-5xl mx-auto px-4 py-8">
-        {tab === 'search' && apiKey && (
-          <SearchTab apiKey={apiKey} watchlist={watchlist} onAdd={handleAddMovie} />
-        )}
-        {tab === 'watchlist' && (
-          <WatchlistTab
-            watchlist={watchlist}
-            onUpdateStatus={handleUpdateStatus}
-            onDelete={handleDelete}
-          />
-        )}
-      </main>
-    </div>
-  )
+    );
 }

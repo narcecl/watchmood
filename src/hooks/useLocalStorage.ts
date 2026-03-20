@@ -1,22 +1,28 @@
-import { useState } from 'react'
+import { useState } from 'react';
 
 export function useLocalStorage<T>(key: string, initial: T) {
-  const [value, setValue] = useState<T>(() => {
-    try {
-      const raw = localStorage.getItem(key)
-      return raw ? (JSON.parse(raw) as T) : initial
-    } catch {
-      return initial
-    }
-  })
+    const [value, setValue] = useState<T>(() => {
+        try {
+            const raw = localStorage.getItem(key);
+            return raw ? (JSON.parse(raw) as T) : initial;
+        } catch {
+            return initial;
+        }
+    });
 
-  const set = (next: T | ((prev: T) => T)) => {
-    setValue(prev => {
-      const resolved = typeof next === 'function' ? (next as (p: T) => T)(prev) : next
-      localStorage.setItem(key, JSON.stringify(resolved))
-      return resolved
-    })
-  }
+    const isUpdater = (v: T | ((prev: T) => T)): v is (prev: T) => T => typeof v === 'function';
 
-  return [value, set] as const
+    const set = (next: T | ((prev: T) => T)) => {
+        setValue((prev) => {
+            const resolved = isUpdater(next) ? next(prev) : next;
+            try {
+                localStorage.setItem(key, JSON.stringify(resolved));
+            } catch {
+                // Throws in private browsing (Safari/Firefox), when quota exceeded, or when disabled
+            }
+            return resolved;
+        });
+    };
+
+    return [value, set] as const;
 }
