@@ -22,8 +22,8 @@ export default function App() {
             originalTitle: result.originalTitle,
             title: result.title,
             year: result.year,
-            poster: result.poster_path,
-            rating: result.vote_average,
+            poster: result.poster,
+            rating: result.rating,
             moods,
             note,
             status: 'pendiente',
@@ -31,21 +31,21 @@ export default function App() {
         };
         setWatchlist((prev) => [
             entry,
-            ...prev.filter((w) => !(w.id === result.id && w.mediaType === result.mediaType)),
+            ...prev.filter((existing) => !(existing.id === result.id && existing.mediaType === result.mediaType)),
         ]);
     };
 
     const handleUpdateStatus = (id: number, mediaType: MediaType, status: Status) =>
         setWatchlist((prev) =>
-            prev.map((w) => (w.id === id && w.mediaType === mediaType ? { ...w, status } : w)),
+            prev.map((existing) => (existing.id === id && existing.mediaType === mediaType ? { ...existing, status } : existing)),
         );
 
     const handleDelete = (id: number, mediaType: MediaType) =>
-        setWatchlist((prev) => prev.filter((w) => !(w.id === id && w.mediaType === mediaType)));
+        setWatchlist((prev) => prev.filter((existing) => !(existing.id === id && existing.mediaType === mediaType)));
 
     const handleEditEntry = (id: number, mediaType: MediaType, moods: MoodId[], note: string) =>
         setWatchlist((prev) =>
-            prev.map((w) => (w.id === id && w.mediaType === mediaType ? { ...w, moods, note } : w)),
+            prev.map((existing) => (existing.id === id && existing.mediaType === mediaType ? { ...existing, moods, note } : existing)),
         );
 
     return (
@@ -70,7 +70,7 @@ export default function App() {
             </header>
 
             <main>
-                <div className="max-w-5xl mx-auto px-4">
+                <div className="max-w-5xl mx-auto px-4 pb-4">
                     <Tabs
                         value={tab}
                         onValueChange={setTab}
@@ -100,6 +100,7 @@ export default function App() {
                                     apiKey={apiKey}
                                     watchlist={watchlist}
                                     onAdd={handleAddMovie}
+                                    onRemove={(result) => handleDelete(result.id, result.mediaType)}
                                 />
                             )}
                         </TabsContent>
@@ -107,6 +108,7 @@ export default function App() {
                         <TabsContent value="watchlist">
                             <WatchlistTab
                                 watchlist={watchlist}
+                                apiKey={apiKey}
                                 onUpdateStatus={handleUpdateStatus}
                                 onDelete={handleDelete}
                                 onEdit={handleEditEntry}

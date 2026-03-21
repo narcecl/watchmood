@@ -2,6 +2,107 @@ import { MediaType, TMDBResult } from '@/types';
 
 const BASE = 'https://api.themoviedb.org/3';
 export const IMG_BASE = 'https://image.tmdb.org/t/p/w500';
+export const PROVIDER_IMG_BASE = 'https://image.tmdb.org/t/p/w92';
+
+export interface TMDBProvider {
+    provider_id: number;
+    provider_name: string;
+    logo_path: string;
+}
+
+export interface MediaDetails {
+    overview: string;
+    tagline: string | null;
+    genres: string[];
+    runtime: string | null;
+    director: string | null;
+    creators: string[];
+    cast: string[];
+    providers: {
+        flatrate: TMDBProvider[];
+        rent: TMDBProvider[];
+        buy: TMDBProvider[];
+    };
+}
+
+interface RawProviderRegion {
+    flatrate?: TMDBProvider[];
+    rent?: TMDBProvider[];
+    buy?: TMDBProvider[];
+}
+
+interface RawDetails {
+    overview: string;
+    tagline?: string;
+    genres: { id: number; name: string }[];
+    runtime?: number | null;
+    episode_run_time?: number[];
+    created_by?: { name: string }[];
+    credits: {
+        cast: { name: string; order: number }[];
+        crew: { name: string; job: string }[];
+    };
+}
+
+const MAX_CAST_MEMBERS = 6;
+const TMDB_DIRECTOR_JOB = 'Director';
+const PREFERRED_REGION = 'CL';
+const FALLBACK_REGION = 'US';
+
+export async function fetchDetails(id: number, mediaType: MediaType, apiKey: string): Promise<MediaDetails> {
+    const qs = `api_key=${apiKey}&language=es-MX&append_to_response=credits`;
+
+    const [detailsRes, providersRes] = await Promise.all([
+        fetch(`${BASE}/${mediaType}/${id}?${qs}`),
+        fetch(`${BASE}/${mediaType}/${id}/watch/providers?api_key=${apiKey}`),
+    ]);
+
+    if (!detailsRes.ok) throw new Error('TMDB request failed');
+
+    const raw = (await detailsRes.json()) as RawDetails;
+    const providersJson = providersRes.ok
+        ? ((await providersRes.json()) as { results: Record<string, RawProviderRegion> })
+        : { results: {} };
+
+    const regionProviders: RawProviderRegion =
+        providersJson.results?.[PREFERRED_REGION] ?? providersJson.results?.[FALLBACK_REGION] ?? {};
+
+    const cast = (raw.credits?.cast ?? [])
+        .sort((memberA, memberB) => memberA.order - memberB.order)
+        .slice(0, MAX_CAST_MEMBERS)
+        .map((castMember) => castMember.name);
+
+    const director =
+        mediaType === 'movie'
+            ? ((raw.credits?.crew ?? []).find((crewMember) => crewMember.job === TMDB_DIRECTOR_JOB)?.name ?? null)
+            : null;
+
+    const creators = mediaType === 'tv' ? (raw.created_by ?? []).map((creator) => creator.name) : [];
+
+    let runtime: string | null = null;
+    if (mediaType === 'movie' && raw.runtime) {
+        const hours = Math.floor(raw.runtime / 60);
+        const minutes = raw.runtime % 60;
+        runtime = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+    } else if (mediaType === 'tv' && raw.episode_run_time?.[0]) {
+        runtime = `${raw.episode_run_time[0]} min / ep`;
+    }
+
+    return {
+        overview: raw.overview,
+        tagline: raw.tagline ?? null,
+        genres: raw.genres.map((genre) => genre.name),
+        runtime,
+        director,
+        creators,
+        cast,
+        providers: {
+            flatrate: regionProviders.flatrate ?? [],
+            rent: regionProviders.rent ?? [],
+            buy: regionProviders.buy ?? [],
+        },
+    };
+}
 
 interface RawMovie {
     id: number;
@@ -35,8 +136,8 @@ function normalize(raw: RawMovie | RawShow, type: MediaType): TMDBResult {
             originalTitle: raw.original_title,
             title: raw.title,
             year: raw.release_date?.slice(0, 4) ?? '—',
-            poster_path: raw.poster_path,
-            vote_average: raw.vote_average,
+            poster: raw.poster_path,
+            rating: raw.vote_average,
         };
     }
     return {
@@ -45,8 +146,8 @@ function normalize(raw: RawMovie | RawShow, type: MediaType): TMDBResult {
         originalTitle: raw.original_name,
         title: raw.name,
         year: raw.first_air_date?.slice(0, 4) ?? '—',
-        poster_path: raw.poster_path,
-        vote_average: raw.vote_average,
+        poster: raw.poster_path,
+        rating: raw.vote_average,
     };
 }
 

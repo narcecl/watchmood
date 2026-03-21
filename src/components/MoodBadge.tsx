@@ -15,7 +15,7 @@ interface MoodBadgeProps {
 }
 
 export default function MoodBadge({ id }: MoodBadgeProps) {
-    const mood = MOODS.find((m) => m.id === id);
+    const mood = MOODS.find((moodItem) => moodItem.id === id);
     if (!mood) return null;
     
     return (

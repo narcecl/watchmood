@@ -5,6 +5,7 @@ import MediaCard from './MediaCard';
 
 interface WatchlistTabProps {
     watchlist: WatchlistEntry[];
+    apiKey: string;
     onUpdateStatus: (id: number, mediaType: MediaType, status: Status) => void;
     onDelete: (id: number, mediaType: MediaType) => void;
     onEdit: (id: number, mediaType: MediaType, moods: MoodId[], note: string) => void;
@@ -12,6 +13,7 @@ interface WatchlistTabProps {
 
 export default function WatchlistTab({
     watchlist,
+    apiKey,
     onUpdateStatus,
     onDelete,
     onEdit,
@@ -20,13 +22,13 @@ export default function WatchlistTab({
 
     const toggleFilter = (id: MoodId) =>
         setActiveFilters((prev) =>
-            prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id],
+            prev.includes(id) ? prev.filter((moodId) => moodId !== id) : [...prev, id],
         );
 
     const filtered =
         activeFilters.length === 0
             ? watchlist
-            : watchlist.filter((w) => activeFilters.some((f) => w.moods.includes(f)));
+            : watchlist.filter((entry) => activeFilters.some((filter) => entry.moods.includes(filter)));
 
     if (watchlist.length === 0) {
         return (
@@ -44,7 +46,9 @@ export default function WatchlistTab({
             <div className="flex flex-wrap gap-2">
                 <div className="w-full sm:w-auto flex flex-wrap gap-1 overflow-x-auto sm:overflow-x-auto">
                     <Badge
+                        render={<button type="button" />}
                         variant={activeFilters.length === 0 ? 'default' : 'outline'}
+                        aria-pressed={activeFilters.length === 0}
                         onClick={() => setActiveFilters([])}
                         className="cursor-pointer text-sm px-3 py-1 h-auto shrink-0"
                     >
@@ -53,7 +57,9 @@ export default function WatchlistTab({
                     {MOODS.map((mood) => (
                         <Badge
                             key={mood.id}
+                            render={<button type="button" />}
                             variant={activeFilters.includes(mood.id) ? 'default' : 'outline'}
+                            aria-pressed={activeFilters.includes(mood.id)}
                             onClick={() => toggleFilter(mood.id)}
                             className="cursor-pointer text-sm px-3 py-1 h-auto shrink-0"
                         >
@@ -72,7 +78,11 @@ export default function WatchlistTab({
                 </div>
             )}
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <p className="sr-only" aria-live="polite" aria-atomic="true">
+                {filtered.length} {filtered.length === 1 ? 'resultado' : 'resultados'}
+            </p>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-4">
                 {filtered.map((entry, idx) => (
                     <MediaCard
                         key={`${entry.mediaType}-${entry.id}`}
@@ -80,6 +90,7 @@ export default function WatchlistTab({
                         className="animate-fade-in-up"
                         style={{ animationDelay: `${idx * 50}ms` }}
                         entry={entry}
+                        apiKey={apiKey}
                         onUpdateStatus={(status) =>
                             onUpdateStatus(entry.id, entry.mediaType, status)
                         }

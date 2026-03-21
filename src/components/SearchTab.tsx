@@ -12,9 +12,10 @@ interface SearchTabProps {
     apiKey: string;
     watchlist: WatchlistEntry[];
     onAdd: (result: TMDBResult, moods: MoodId[], note: string) => void;
+    onRemove: (result: TMDBResult) => void;
 }
 
-export default function SearchTab({ apiKey, watchlist, onAdd }: SearchTabProps) {
+export default function SearchTab({ apiKey, watchlist, onAdd, onRemove }: SearchTabProps) {
     const [query, setQuery] = useState('');
     const debouncedQuery = useDebounce(query, 500);
 
@@ -30,12 +31,13 @@ export default function SearchTab({ apiKey, watchlist, onAdd }: SearchTabProps) 
 
     const resultKey = (r: TMDBResult) => `${r.mediaType}-${r.id}`;
     const existingEntry = (r: TMDBResult) =>
-        watchlist.find((w) => w.id === r.id && w.mediaType === r.mediaType) ?? null;
+        watchlist.find((entry) => entry.id === r.id && entry.mediaType === r.mediaType) ?? null;
 
     return (
         <div className="flex flex-col gap-6">
             <div className="relative">
                 <Input
+                    aria-label="Busca una película o serie"
                     placeholder="Busca una película o serie..."
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
@@ -65,6 +67,10 @@ export default function SearchTab({ apiKey, watchlist, onAdd }: SearchTabProps) 
             )}
 
             {results.length > 0 && (
+                <>
+                <p className="sr-only" aria-live="polite" aria-atomic="true">
+                    {results.length} {results.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}
+                </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {results.map((item, idx) => {
                         const key = resultKey(item);
@@ -77,10 +83,13 @@ export default function SearchTab({ apiKey, watchlist, onAdd }: SearchTabProps) 
                                 result={item}
                                 existingEntry={existingEntry(item)}
                                 onAdd={(moods, note) => onAdd(item, moods, note)}
+                                onRemove={() => onRemove(item)}
+                                apiKey={apiKey}
                             />
                         );
                     })}
                 </div>
+                </>
             )}
 
             {!isFetching && debouncedQuery && results.length === 0 && !isError && (

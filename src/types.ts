@@ -34,6 +34,6 @@ export interface TMDBResult {
     originalTitle: string;
     title: string;
     year: string;
-    poster_path: string | null;
-    vote_average: number;
+    poster: string | null;
+    rating: number;
 }
