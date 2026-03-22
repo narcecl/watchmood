@@ -228,7 +228,7 @@ export default function MediaDetailModal({
                                         <div className="flex flex-col gap-2 mt-2">
                                             {data.providers.flatrate.length > 0 && (
                                                 <div className="flex flex-col gap-2">
-                                                    <h4 className="text-xs text-muted-foreground">
+                                                    <h4 className="font-sans text-xs text-muted-foreground">
                                                         Streaming
                                                     </h4>
                                                     <div className="flex flex-wrap gap-2">
@@ -243,7 +243,7 @@ export default function MediaDetailModal({
                                             )}
                                             {data.providers.buy.length > 0 && (
                                                 <div className="flex flex-col gap-2">
-                                                    <h4 className="text-xs text-muted-foreground">
+                                                    <h4 className="font-sans text-xs text-muted-foreground">
                                                         Compra
                                                     </h4>
                                                     <div className="flex flex-wrap gap-2">

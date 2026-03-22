@@ -44,8 +44,8 @@ export default function SearchTab({ apiKey, watchlist, onAdd, onRemove }: Search
                 className="relative"
             >
                 <Input
-                    aria-label="Busca una película o serie"
-                    placeholder="Busca una película o serie..."
+                    aria-label="Escribe el nombre de una película o serie para empezar"
+                    placeholder="Escribe el nombre de una película o serie para empezar"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     className="h-12"
@@ -57,12 +57,12 @@ export default function SearchTab({ apiKey, watchlist, onAdd, onRemove }: Search
                 )}
                 {query.length > 0 && !isFetching && (
                     <button
-                        className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white"
+                        className="flex items-center justify-center rounded-full size-8 hover:bg-white/10 cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white transition-colors"
                         onClick={() => setQuery('')}
                         aria-label="Limpiar búsqueda"
                         type="button"
                     >
-                        <X size={16} />
+                        <X className="size-4" />
                     </button>
                 )}
             </div>
@@ -111,12 +111,6 @@ export default function SearchTab({ apiKey, watchlist, onAdd, onRemove }: Search
                         No se encontraron resultados para "{debouncedQuery}"
                     </p>
                 </div>
-            )}
-
-            {!query && (
-                <p className="text-muted-foreground text-sm text-center py-12">
-                    Escribe el nombre de una película o serie para empezar
-                </p>
             )}
         </div>
     );

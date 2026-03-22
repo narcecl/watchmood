@@ -2,4 +2,5 @@
 export const STORAGE_KEYS = {
     apiKey: 'tmdb_api_key:v1',
     watchlist: 'watchmood_list:v1',
+    infoDismissed: 'watchmood_info_dismissed:v1',
 } as const;

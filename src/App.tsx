@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { Info, X } from 'lucide-react';
 import { MoodId, MediaType, Status, TMDBResult, WatchlistEntry } from '@/types';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { STORAGE_KEYS } from '@/lib/storage';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import ApiKeyModal from '@/components/ApiKeyModal';
 import SettingsModal from '@/components/SettingsModal';
 import SearchTab from '@/components/SearchTab';
@@ -13,6 +15,10 @@ import Logo from '@/components/Logo';
 export default function App() {
     const [apiKey, setApiKey] = useLocalStorage<string>(STORAGE_KEYS.apiKey, '');
     const [watchlist, setWatchlist] = useLocalStorage<WatchlistEntry[]>(STORAGE_KEYS.watchlist, []);
+    const [infoDismissed, setInfoDismissed] = useLocalStorage<boolean>(
+        STORAGE_KEYS.infoDismissed,
+        false,
+    );
     const [tab, setTab] = useState('search');
 
     const handleAddMovie = (result: TMDBResult, moods: MoodId[], note: string) => {
@@ -84,6 +90,32 @@ export default function App() {
 
             <main>
                 <div className="max-w-6xl mx-auto px-4 pb-4">
+                    {!infoDismissed && (
+                        <Alert
+                            variant="info"
+                            className="relative mb-6"
+                        >
+                            <Info className="size-4" />
+                            <AlertTitle className="text-white text-base leading-tight">
+                                Tus datos son solo tuyos
+                            </AlertTitle>
+                            <AlertDescription>
+                                watchMood guarda tu lista directamente en este navegador usando{' '}
+                                <span className="text-white font-bold">localStorage</span>. Esto
+                                significa que tu información nunca sale del dispositivo que estás
+                                ocupando ahora mismo, pero si limpias los datos del navegador o usas
+                                otro dispositivo, tu lista no estará disponible.
+                            </AlertDescription>
+                            <button
+                                type="button"
+                                aria-label="Cerrar aviso"
+                                onClick={() => setInfoDismissed(true)}
+                                className="absolute top-3 right-3 text-blue-400 hover:text-white transition-colors cursor-pointer"
+                            >
+                                <X className="size-4" />
+                            </button>
+                        </Alert>
+                    )}
                     <Tabs
                         value={tab}
                         onValueChange={setTab}

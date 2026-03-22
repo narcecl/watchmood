@@ -9,7 +9,7 @@ export default function ProviderImage({ provider }: { provider: TMDBProvider }) 
             loading="lazy"
             width={40}
             height={40}
-            className="size-10 rounded-sm"
+            className="size-7 rounded-xs"
         />
     );
 }
