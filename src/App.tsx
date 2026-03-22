@@ -100,11 +100,8 @@ export default function App() {
                                 Tus datos son solo tuyos
                             </AlertTitle>
                             <AlertDescription>
-                                watchMood guarda tu lista directamente en este navegador usando{' '}
-                                <span className="text-white font-bold">localStorage</span>. Esto
-                                significa que tu información nunca sale del dispositivo que estás
-                                ocupando ahora mismo, pero si limpias los datos del navegador o usas
-                                otro dispositivo, tu lista no estará disponible.
+                                No hay servidores ni cuentas, así que si limpias los datos del
+                                navegador o usas otro dispositivo, la perderás.
                             </AlertDescription>
                             <button
                                 type="button"
