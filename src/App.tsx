@@ -31,30 +31,43 @@ export default function App() {
         };
         setWatchlist((prev) => [
             entry,
-            ...prev.filter((existing) => !(existing.id === result.id && existing.mediaType === result.mediaType)),
+            ...prev.filter(
+                (existing) =>
+                    !(existing.id === result.id && existing.mediaType === result.mediaType),
+            ),
         ]);
     };
 
     const handleUpdateStatus = (id: number, mediaType: MediaType, status: Status) =>
         setWatchlist((prev) =>
-            prev.map((existing) => (existing.id === id && existing.mediaType === mediaType ? { ...existing, status } : existing)),
+            prev.map((existing) =>
+                existing.id === id && existing.mediaType === mediaType
+                    ? { ...existing, status }
+                    : existing,
+            ),
         );
 
     const handleDelete = (id: number, mediaType: MediaType) =>
-        setWatchlist((prev) => prev.filter((existing) => !(existing.id === id && existing.mediaType === mediaType)));
+        setWatchlist((prev) =>
+            prev.filter((existing) => !(existing.id === id && existing.mediaType === mediaType)),
+        );
 
     const handleEditEntry = (id: number, mediaType: MediaType, moods: MoodId[], note: string) =>
         setWatchlist((prev) =>
-            prev.map((existing) => (existing.id === id && existing.mediaType === mediaType ? { ...existing, moods, note } : existing)),
+            prev.map((existing) =>
+                existing.id === id && existing.mediaType === mediaType
+                    ? { ...existing, moods, note }
+                    : existing,
+            ),
         );
 
     return (
-        <div className="dark min-h-screen bg-background text-foreground flex flex-col gap-12">
+        <div className="dark min-h-dvh bg-background text-foreground flex flex-col gap-12">
             {!apiKey && <ApiKeyModal onSave={setApiKey} />}
 
             <header className="pt-8">
-                <div className="max-w-5xl mx-auto px-4">
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
+                <div className="max-w-6xl mx-auto px-4">
+                    <div className="flex flex-row items-center justify-between gap-4 sm:gap-0">
                         <div className="flex items-center gap-2">
                             <Logo />
                         </div>
@@ -70,7 +83,7 @@ export default function App() {
             </header>
 
             <main>
-                <div className="max-w-5xl mx-auto px-4 pb-4">
+                <div className="max-w-6xl mx-auto px-4 pb-4">
                     <Tabs
                         value={tab}
                         onValueChange={setTab}
@@ -82,7 +95,7 @@ export default function App() {
                                 value="watchlist"
                                 className="flex items-center gap-1.5"
                             >
-                                Mi Lista
+                                Mi lista
                                 {watchlist.length > 0 && (
                                     <Badge
                                         variant="secondary"
@@ -112,6 +125,7 @@ export default function App() {
                                 onUpdateStatus={handleUpdateStatus}
                                 onDelete={handleDelete}
                                 onEdit={handleEditEntry}
+                                onSearchTab={() => setTab('search')}
                             />
                         </TabsContent>
                     </Tabs>

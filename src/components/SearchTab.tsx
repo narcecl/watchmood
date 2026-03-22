@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { MoodId, TMDBResult, WatchlistEntry } from '@/types';
 import { searchAll } from '@/lib/tmdb';
@@ -30,12 +30,19 @@ export default function SearchTab({ apiKey, watchlist, onAdd, onRemove }: Search
     });
 
     const resultKey = (r: TMDBResult) => `${r.mediaType}-${r.id}`;
-    const existingEntry = (r: TMDBResult) =>
-        watchlist.find((entry) => entry.id === r.id && entry.mediaType === r.mediaType) ?? null;
+
+    const watchlistMap = useMemo(
+        () => new Map(watchlist.map((entry) => [`${entry.mediaType}-${entry.id}`, entry])),
+        [watchlist],
+    );
+    const existingEntry = (r: TMDBResult) => watchlistMap.get(resultKey(r)) ?? null;
 
     return (
         <div className="flex flex-col gap-6">
-            <div className="relative">
+            <div
+                role="search"
+                className="relative"
+            >
                 <Input
                     aria-label="Busca una película o serie"
                     placeholder="Busca una película o serie..."
@@ -68,27 +75,32 @@ export default function SearchTab({ apiKey, watchlist, onAdd, onRemove }: Search
 
             {results.length > 0 && (
                 <>
-                <p className="sr-only" aria-live="polite" aria-atomic="true">
-                    {results.length} {results.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {results.map((item, idx) => {
-                        const key = resultKey(item);
-                        return (
-                            <MediaCard
-                                key={key}
-                                variant="search"
-                                className="animate-fade-in-up"
-                                style={{ animationDelay: `${idx * 50}ms` }}
-                                result={item}
-                                existingEntry={existingEntry(item)}
-                                onAdd={(moods, note) => onAdd(item, moods, note)}
-                                onRemove={() => onRemove(item)}
-                                apiKey={apiKey}
-                            />
-                        );
-                    })}
-                </div>
+                    <p
+                        className="sr-only"
+                        aria-live="polite"
+                        aria-atomic="true"
+                    >
+                        {results.length}{' '}
+                        {results.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 lg:gap-6">
+                        {results.map((item, idx) => {
+                            const key = resultKey(item);
+                            return (
+                                <MediaCard
+                                    key={key}
+                                    variant="search"
+                                    className="animate-fade-in-up"
+                                    style={{ animationDelay: `${Math.min(idx * 50, 300)}ms` }}
+                                    result={item}
+                                    existingEntry={existingEntry(item)}
+                                    onAdd={(moods, note) => onAdd(item, moods, note)}
+                                    onRemove={() => onRemove(item)}
+                                    apiKey={apiKey}
+                                />
+                            );
+                        })}
+                    </div>
                 </>
             )}
 

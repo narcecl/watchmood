@@ -1,10 +1,10 @@
 export const MOODS = [
-    { id: 'tranqui', label: '🧘 Solo tranqui' },
-    { id: 'plan', label: '🍿 Plan con alguien' },
-    { id: 'reir', label: '😂 Necesito reírme' },
-    { id: 'llorar', label: '😭 Para llorar' },
-    { id: 'cerebro', label: '💥 Apagar el cerebro' },
-    { id: 'pensar', label: '🤯 Algo que me haga pensar' },
+    { id: 'tranqui', label: 'Solo tranqui' },
+    { id: 'plan', label: 'Plan con alguien' },
+    { id: 'reir', label: 'Necesito reírme' },
+    { id: 'llorar', label: 'Para llorar' },
+    { id: 'cerebro', label: 'Apagar el cerebro' },
+    { id: 'pensar', label: 'Algo que me haga pensar' },
 ] as const;
 
 export type MoodId = (typeof MOODS)[number]['id'];

@@ -15,6 +15,7 @@ export interface MediaDetails {
     tagline: string | null;
     genres: string[];
     runtime: string | null;
+    seasons: number | null;
     director: string | null;
     creators: string[];
     cast: string[];
@@ -37,6 +38,7 @@ interface RawDetails {
     genres: { id: number; name: string }[];
     runtime?: number | null;
     episode_run_time?: number[];
+    number_of_seasons?: number;
     created_by?: { name: string }[];
     credits: {
         cast: { name: string; order: number }[];
@@ -49,7 +51,11 @@ const TMDB_DIRECTOR_JOB = 'Director';
 const PREFERRED_REGION = 'CL';
 const FALLBACK_REGION = 'US';
 
-export async function fetchDetails(id: number, mediaType: MediaType, apiKey: string): Promise<MediaDetails> {
+export async function fetchDetails(
+    id: number,
+    mediaType: MediaType,
+    apiKey: string,
+): Promise<MediaDetails> {
     const qs = `api_key=${apiKey}&language=es-MX&append_to_response=credits`;
 
     const [detailsRes, providersRes] = await Promise.all([
@@ -74,10 +80,12 @@ export async function fetchDetails(id: number, mediaType: MediaType, apiKey: str
 
     const director =
         mediaType === 'movie'
-            ? ((raw.credits?.crew ?? []).find((crewMember) => crewMember.job === TMDB_DIRECTOR_JOB)?.name ?? null)
+            ? ((raw.credits?.crew ?? []).find((crewMember) => crewMember.job === TMDB_DIRECTOR_JOB)
+                  ?.name ?? null)
             : null;
 
-    const creators = mediaType === 'tv' ? (raw.created_by ?? []).map((creator) => creator.name) : [];
+    const creators =
+        mediaType === 'tv' ? (raw.created_by ?? []).map((creator) => creator.name) : [];
 
     let runtime: string | null = null;
     if (mediaType === 'movie' && raw.runtime) {
@@ -93,6 +101,7 @@ export async function fetchDetails(id: number, mediaType: MediaType, apiKey: str
         tagline: raw.tagline ?? null,
         genres: raw.genres.map((genre) => genre.name),
         runtime,
+        seasons: mediaType === 'tv' ? (raw.number_of_seasons ?? null) : null,
         director,
         creators,
         cast,
@@ -129,7 +138,8 @@ function isRawMovie(_raw: RawMovie | RawShow, type: MediaType): _raw is RawMovie
 function normalize(raw: RawMovie, type: 'movie'): TMDBResult;
 function normalize(raw: RawShow, type: 'tv'): TMDBResult;
 function normalize(raw: RawMovie | RawShow, type: MediaType): TMDBResult {
-    if (isRawMovie(raw, type)) { // narrows raw → RawMovie in true branch, RawShow in false
+    if (isRawMovie(raw, type)) {
+        // narrows raw → RawMovie in true branch, RawShow in false
         return {
             id: raw.id,
             mediaType: 'movie',

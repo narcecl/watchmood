@@ -46,12 +46,21 @@ export default function ApiKeyModal({ onSave }: ApiKeyModalProps) {
                     onSubmit={handleSubmit}
                     className="flex flex-col gap-4 mt-2"
                 >
-                    <Input
-                        placeholder="Pega tu TMDB API key aquí..."
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        autoFocus
-                    />
+                    <div className="flex flex-col gap-1.5">
+                        <label
+                            htmlFor="api-key-input"
+                            className="text-sm font-medium"
+                        >
+                            TMDB API Key
+                        </label>
+                        <Input
+                            id="api-key-input"
+                            placeholder="Pega tu TMDB API key aquí..."
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            autoFocus
+                        />
+                    </div>
                     <Button
                         type="submit"
                         disabled={!input.trim()}
@@ -62,9 +71,14 @@ export default function ApiKeyModal({ onSave }: ApiKeyModalProps) {
 
                     <p className="text-muted-foreground text-xs text-center">
                         Consigue tu key gratis en{' '}
-                        <span className="text-primary font-medium">
+                        <a
+                            href="https://www.themoviedb.org/settings/api"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-brand font-medium hover:underline"
+                        >
                             themoviedb.org → Settings → API
-                        </span>
+                        </a>
                     </p>
                 </form>
             </DialogContent>

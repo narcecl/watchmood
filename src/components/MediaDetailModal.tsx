@@ -1,27 +1,47 @@
 import { useQuery } from '@tanstack/react-query';
 import { MediaType, Status } from '@/types';
 import { fetchDetails, IMG_BASE } from '@/lib/tmdb';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import ProviderImage from './ProviderImage';
 import { STATUS_CYCLE, STATUS_LABEL } from '@/lib/const';
 
-interface MediaDetailModalProps {
+type BaseMediaDetailModalProps = {
     apiKey: string;
     id: number;
-    isInWatchlist?: boolean;
     mediaType: MediaType;
-    onAdd?: () => void;
     onOpenChange: (open: boolean) => void;
-    onRemove?: () => void;
-    onUpdateStatus?: (status: Status) => void;
     open: boolean;
     originalTitle: string;
+    title?: string;
     poster: string | null;
-    status?: Status;
-}
+};
+
+type SearchVariantProps = BaseMediaDetailModalProps & {
+    isInWatchlist: boolean;
+    onAdd?: () => void;
+    onRemove?: () => void;
+    status?: never;
+    onUpdateStatus?: never;
+};
+
+type WatchlistVariantProps = BaseMediaDetailModalProps & {
+    isInWatchlist: true;
+    onRemove: () => void;
+    status: Status;
+    onUpdateStatus: (status: Status) => void;
+    onAdd?: never;
+};
+
+type MediaDetailModalProps = SearchVariantProps | WatchlistVariantProps;
 
 export default function MediaDetailModal({
     open,
@@ -29,6 +49,7 @@ export default function MediaDetailModal({
     id,
     mediaType,
     originalTitle,
+    title,
     poster,
     apiKey,
     onAdd,
@@ -44,13 +65,18 @@ export default function MediaDetailModal({
         staleTime: 10 * 60 * 1000,
     });
 
+    const hasProviders =
+        !!data &&
+        (data.providers.flatrate.length > 0 ||
+            data.providers.rent.length > 0 ||
+            data.providers.buy.length > 0);
+
     const handleWatchlistAction = () => {
         if (isInWatchlist) {
             onRemove?.();
         } else {
             onAdd?.();
         }
-        onOpenChange(false);
     };
 
     return (
@@ -59,11 +85,12 @@ export default function MediaDetailModal({
             onOpenChange={onOpenChange}
         >
             <DialogContent className="p-0 flex flex-col sm:flex-row w-full sm:max-w-3xl! max-h-[90vh] overflow-y-auto">
-                <div className="w-full sm:w-2/4 h-36 sm:h-auto">
+                <div className="hidden sm:block w-full sm:w-2/4 h-36 sm:h-auto">
                     {poster && (
                         <img
                             src={`${IMG_BASE}${poster}`}
                             alt={originalTitle}
+                            loading="lazy"
                             className="w-full h-full object-cover object-top"
                         />
                     )}
@@ -116,10 +143,17 @@ export default function MediaDetailModal({
                         {data && (
                             <>
                                 <div className="flex flex-col gap-4 grow">
-                                    <DialogHeader className="mb-2">
-                                        <DialogTitle className="pr-10 line-clamp-2">
+                                    <DialogHeader className="gap-0">
+                                        <DialogTitle className="text-xl pr-10 line-clamp-2">
                                             {originalTitle}
                                         </DialogTitle>
+                                        {title && (
+                                            <DialogDescription>
+                                                <p className="text-sm text-muted-foreground line-clamp-1">
+                                                    {title}
+                                                </p>
+                                            </DialogDescription>
+                                        )}
                                     </DialogHeader>
 
                                     <div className="flex flex-wrap gap-1">
@@ -138,6 +172,15 @@ export default function MediaDetailModal({
                                                 className="text-xs"
                                             >
                                                 {data.runtime}
+                                            </Badge>
+                                        )}
+                                        {data.seasons && (
+                                            <Badge
+                                                variant="outline"
+                                                className="text-xs"
+                                            >
+                                                {data.seasons}{' '}
+                                                {data.seasons === 1 ? 'temporada' : 'temporadas'}
                                             </Badge>
                                         )}
                                     </div>
@@ -173,67 +216,48 @@ export default function MediaDetailModal({
                                         )}
                                     </div>
 
-                                    {(() => {
-                                        const hasProviders =
-                                            data.providers.flatrate.length > 0 ||
-                                            data.providers.rent.length > 0 ||
-                                            data.providers.buy.length > 0;
-                                        return (
-                                            <div className="border-t border-border pt-4 flex flex-col">
-                                                <h3 className="text-sm font-medium">
-                                                    ¿Dónde verla?
-                                                </h3>
+                                    <div className="border-t border-border pt-4 flex flex-col">
+                                        <h3 className="text-sm font-medium">¿Dónde ver?</h3>
 
-                                                {!hasProviders && (
-                                                    <p className="text-xs text-muted-foreground">
-                                                        Sin información de disponibilidad por el
-                                                        momento.
-                                                    </p>
-                                                )}
+                                        {!hasProviders && (
+                                            <p className="text-xs text-muted-foreground">
+                                                Sin información de disponibilidad por el momento.
+                                            </p>
+                                        )}
 
-                                                <div className="flex flex-col gap-2 mt-2">
-                                                    {data.providers.flatrate.length > 0 && (
-                                                        <div className="flex flex-col gap-2">
-                                                            <h4 className="text-xs text-muted-foreground">
-                                                                Streaming
-                                                            </h4>
-                                                            <div className="flex flex-wrap gap-2">
-                                                                {data.providers.flatrate.map(
-                                                                    (provider) => (
-                                                                        <ProviderImage
-                                                                            key={
-                                                                                provider.provider_id
-                                                                            }
-                                                                            provider={provider}
-                                                                        />
-                                                                    ),
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                    {data.providers.buy.length > 0 && (
-                                                        <div className="flex flex-col gap-2">
-                                                            <h4 className="text-xs text-muted-foreground">
-                                                                Compra
-                                                            </h4>
-                                                            <div className="flex flex-wrap gap-2">
-                                                                {data.providers.buy.map(
-                                                                    (provider) => (
-                                                                        <ProviderImage
-                                                                            key={
-                                                                                provider.provider_id
-                                                                            }
-                                                                            provider={provider}
-                                                                        />
-                                                                    ),
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    )}
+                                        <div className="flex flex-col gap-2 mt-2">
+                                            {data.providers.flatrate.length > 0 && (
+                                                <div className="flex flex-col gap-2">
+                                                    <h4 className="text-xs text-muted-foreground">
+                                                        Streaming
+                                                    </h4>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {data.providers.flatrate.map((provider) => (
+                                                            <ProviderImage
+                                                                key={provider.provider_id}
+                                                                provider={provider}
+                                                            />
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        );
-                                    })()}
+                                            )}
+                                            {data.providers.buy.length > 0 && (
+                                                <div className="flex flex-col gap-2">
+                                                    <h4 className="text-xs text-muted-foreground">
+                                                        Compra
+                                                    </h4>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {data.providers.buy.map((provider) => (
+                                                            <ProviderImage
+                                                                key={provider.provider_id}
+                                                                provider={provider}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div className="flex flex-col gap-2">
@@ -251,9 +275,7 @@ export default function MediaDetailModal({
                                         <Button
                                             className="w-full"
                                             variant={isInWatchlist ? 'destructive' : 'default'}
-                                            onClick={() => {
-                                                handleWatchlistAction();
-                                            }}
+                                            onClick={handleWatchlistAction}
                                         >
                                             {isInWatchlist
                                                 ? 'Eliminar de mi lista'

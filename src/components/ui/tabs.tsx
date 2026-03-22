@@ -54,7 +54,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
             data-slot="tabs-trigger"
             className={cn(
                 'cursor-pointer hover:text-foreground relative inline-flex items-center justify-center gap-1.5 px-2 pt-2 pb-4 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all border-b-2 border-b-transparent!',
-                'dark:data-active:text-foreground data-active:border-b-amber-500!',
+                'dark:data-active:text-foreground data-active:border-b-brand!',
                 className,
             )}
             {...props}

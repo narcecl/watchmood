@@ -1,7 +1,8 @@
 import { Badge } from '@/components/ui/badge';
-import { MOODS, MoodId } from '@/types';
+import { MoodId } from '@/types';
+import { MOOD_DISPLAY } from '@/lib/const';
 
-const colorClass: Record<string, string> = {
+const colorClass: Record<MoodId, string> = {
     tranqui: 'border-teal-700 bg-teal-900/40 text-teal-300 hover:bg-teal-900/40',
     plan: 'border-yellow-700 bg-yellow-900/40 text-yellow-300 hover:bg-yellow-900/40',
     reir: 'border-orange-700 bg-orange-900/40 text-orange-300 hover:bg-orange-900/40',
@@ -15,15 +16,20 @@ interface MoodBadgeProps {
 }
 
 export default function MoodBadge({ id }: MoodBadgeProps) {
-    const mood = MOODS.find((moodItem) => moodItem.id === id);
-    if (!mood) return null;
-    
+    const display = MOOD_DISPLAY[id];
+    if (!display) return null;
+    const { Icon, label } = display;
+
     return (
         <Badge
             variant="outline"
-            className={colorClass[id] ?? ''}
+            className={colorClass[id]}
         >
-            {mood.label}
+            <Icon
+                size={11}
+                aria-hidden="true"
+            />
+            {label}
         </Badge>
     );
 }

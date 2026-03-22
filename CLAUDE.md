@@ -4,14 +4,14 @@ Personal mood-tagged watchlist. React + Vite + TypeScript + Tailwind CSS v4 + sh
 
 ## Stack
 
-| Layer       | Tech                                                                              |
-| ----------- | --------------------------------------------------------------------------------- |
-| Build       | Vite 6 + `@tailwindcss/vite` (no PostCSS)                                        |
-| UI          | React 18, TypeScript strict, shadcn/ui (`@base-ui/react` primitives)             |
-| Styles      | Tailwind CSS v4 — `@import "tailwindcss"` in `index.css`, no `tailwind.config.js`|
+| Layer       | Tech                                                                               |
+| ----------- | ---------------------------------------------------------------------------------- |
+| Build       | Vite 6 + `@tailwindcss/vite` (no PostCSS)                                          |
+| UI          | React 18, TypeScript strict, shadcn/ui (`@base-ui/react` primitives)               |
+| Styles      | Tailwind CSS v4 — `@import "tailwindcss"` in `index.css`, no `tailwind.config.js`  |
 | Data fetch  | TanStack Query v5 — `QueryClientProvider` in `main.tsx`, `useQuery` in `SearchTab` |
-| Persistence | `localStorage` via `useLocalStorage` hook                                         |
-| External    | TMDB API (movies + TV) — key stored in localStorage                               |
+| Persistence | `localStorage` via `useLocalStorage` hook                                          |
+| External    | TMDB API (movies + TV) — key stored in localStorage                                |
 
 ## Project Structure
 
@@ -45,6 +45,7 @@ src/
 **TanStack Query** — `QueryClient` is created once in `main.tsx` with `staleTime: 5min, retry: 1`. Search queries use `queryKey: ['search', debouncedQuery, apiKey]` so results are cached per query+key pair. The `enabled` flag prevents fetching on empty input.
 
 **`MediaCard`** is a single component serving both contexts via a discriminated union:
+
 - `variant="search"` — shows "+ Añadir" or "Editar moods" button; dialog with `AddMovieForm` is managed internally
 - `variant="watchlist"` — shows status cycle button + "Editar moods" button; dialog managed internally
 

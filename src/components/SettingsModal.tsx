@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Settings } from 'lucide-react';
+import { Check, Settings } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -74,10 +74,15 @@ export default function SettingsModal({ apiKey, onSaveApiKey }: SettingsModalPro
                             autoFocus
                         />
                         <p className="text-xs text-muted-foreground">
-                            Consíguела gratis en{' '}
-                            <span className="text-foreground/70 font-medium">
+                            Consíguela gratis en{' '}
+                            <a
+                                href="https://www.themoviedb.org/settings/api"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-brand font-medium hover:underline"
+                            >
                                 themoviedb.org → Settings → API
-                            </span>
+                            </a>
                         </p>
                     </div>
 
@@ -86,7 +91,13 @@ export default function SettingsModal({ apiKey, onSaveApiKey }: SettingsModalPro
                         disabled={!input.trim() || saved}
                         className="w-full"
                     >
-                        {saved ? '✓ Guardado' : 'Guardar cambios'}
+                        {saved ? (
+                            <>
+                                <Check className="size-4" /> Guardado
+                            </>
+                        ) : (
+                            'Guardar cambios'
+                        )}
                     </Button>
                 </form>
             </DialogContent>

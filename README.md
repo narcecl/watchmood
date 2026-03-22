@@ -40,12 +40,12 @@ La primera vez que abras la app te pedirá la API key. Se guarda en `localStorag
 
 ## Scripts
 
-| Comando         | Descripción                        |
-| --------------- | ---------------------------------- |
-| `npm run dev`   | Servidor de desarrollo             |
-| `npm run build` | Build de producción (`dist/`)      |
-| `npm run lint`  | ESLint                             |
-| `npm run format`| Prettier                           |
+| Comando          | Descripción                   |
+| ---------------- | ----------------------------- |
+| `npm run dev`    | Servidor de desarrollo        |
+| `npm run build`  | Build de producción (`dist/`) |
+| `npm run lint`   | ESLint                        |
+| `npm run format` | Prettier                      |
 
 ## Estructura
 

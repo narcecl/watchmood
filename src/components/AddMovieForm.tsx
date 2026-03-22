@@ -1,22 +1,24 @@
 import { useState } from 'react';
-import { MOODS, MoodId, MediaType } from '@/types';
+import { MOODS, MoodId } from '@/types';
+import { MOOD_DISPLAY } from '@/lib/const';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface AddMovieFormProps {
-    mediaType: MediaType;
     initialMoods?: MoodId[];
+    initialNote?: string;
     onAdd: (moods: MoodId[], note: string) => void;
     onCancel: () => void;
 }
 
 export default function AddMovieForm({
-    mediaType,
     initialMoods = [],
+    initialNote = '',
     onAdd,
     onCancel,
 }: AddMovieFormProps) {
     const [selectedMoods, setSelectedMoods] = useState<MoodId[]>(initialMoods);
+    const [note, setNote] = useState(initialNote);
 
     const toggleMood = (id: MoodId) =>
         setSelectedMoods((prev) =>
@@ -25,7 +27,7 @@ export default function AddMovieForm({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onAdd(selectedMoods, '');
+        onAdd(selectedMoods, note);
     };
 
     return (
@@ -33,31 +35,40 @@ export default function AddMovieForm({
             onSubmit={handleSubmit}
             className="flex flex-col gap-4"
         >
-            <div className="flex flex-col gap-0.5">
-                <p className="text-muted-foreground px-1 mb-4">
-                    ¿Qué mood se te viene a la cabeza con esta{' '}
-                    {mediaType === 'movie' ? 'película' : 'serie'}?
-                </p>
-                {MOODS.map((mood) => (
-                    <label
-                        key={mood.id}
-                        className={cn(
-                            'border border-neutral-900 flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-colors text-sm select-none bg-neutral-950',
-                            selectedMoods.includes(mood.id)
-                                ? 'bg-neutral-900 text-primary'
-                                : 'hover:bg-accent',
-                        )}
-                    >
-                        <input
-                            type="checkbox"
-                            checked={selectedMoods.includes(mood.id)}
-                            onChange={() => toggleMood(mood.id)}
-                            className="w-4 h-4 rounded accent-primary cursor-pointer shrink-0"
-                        />
-                        {mood.label}
-                    </label>
-                ))}
+            <div className="flex flex-wrap gap-2">
+                {MOODS.map((mood) => {
+                    const { Icon, label } = MOOD_DISPLAY[mood.id];
+                    const isSelected = selectedMoods.includes(mood.id);
+                    return (
+                        <button
+                            key={mood.id}
+                            type="button"
+                            aria-pressed={isSelected}
+                            onClick={() => toggleMood(mood.id)}
+                            className={cn(
+                                'flex items-center gap-1.5 rounded-full px-4 py-2 text-sm cursor-pointer transition-colors duration-150 select-none hover:bg-brand/30 hover:border-brand/50',
+                                isSelected
+                                    ? 'bg-brand! border border-transparent text-[#0a0a0f] font-medium'
+                                    : 'bg-[#1a1a24] border border-[#333] text-white',
+                            )}
+                        >
+                            <Icon
+                                size={15}
+                                aria-hidden="true"
+                            />
+                            {label}
+                        </button>
+                    );
+                })}
             </div>
+
+            <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="Notas opcionales..."
+                rows={2}
+                className="w-full resize-none rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand dark:bg-input/30"
+            />
 
             <div className="flex gap-2">
                 <Button
