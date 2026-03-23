@@ -68,10 +68,10 @@ export default function App() {
         );
 
     return (
-        <div className="dark min-h-dvh bg-background text-foreground flex flex-col gap-12">
+        <div className="dark min-h-dvh bg-background text-foreground flex flex-col gap-12 py-8">
             {!apiKey && <ApiKeyModal onSave={setApiKey} />}
 
-            <header className="pt-8">
+            <header>
                 <div className="max-w-6xl mx-auto px-4">
                     <div className="flex flex-row items-center justify-between gap-4 sm:gap-0">
                         <div className="flex items-center gap-2">
@@ -89,7 +89,7 @@ export default function App() {
             </header>
 
             <main>
-                <div className="max-w-6xl mx-auto px-4 pb-4">
+                <div className="max-w-6xl mx-auto px-4">
                     {!infoDismissed && (
                         <Alert
                             variant="info"

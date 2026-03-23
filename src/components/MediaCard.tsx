@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { TMDBResult, MoodId, Status, WatchlistEntry } from '@/types';
 import { IMG_BASE } from '@/lib/tmdb';
-import { Check, Star, Tv2, Film } from 'lucide-react';
+import { Check, Star, Tv2, Clapperboard } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -91,20 +91,20 @@ export default function MediaCard(props: MediaCardProps) {
                         <div
                             role="img"
                             aria-label={`Sin póster para ${originalTitle}`}
-                            className="w-full max-h-80 aspect-2/3 bg-gradient-to-b from-neutral-800 to-neutral-950 flex flex-col items-center justify-center gap-1.5 px-4"
+                            className="w-full max-h-80 aspect-2/3 bg-linear-to-b from-neutral-800 to-neutral-950 flex flex-col items-center justify-center gap-1.5 px-4"
                         >
                             {mediaType === 'tv' ? (
                                 <Tv2
-                                    className="size-8 text-white/20"
+                                    className="size-8 text-white"
                                     aria-hidden="true"
                                 />
                             ) : (
-                                <Film
-                                    className="size-8 text-white/20"
+                                <Clapperboard
+                                    className="size-8 text-white"
                                     aria-hidden="true"
                                 />
                             )}
-                            <p className="text-[11px] font-medium text-white/50 text-center leading-snug line-clamp-4">
+                            <p className="text-[11px] font-medium text-white/80 text-center leading-snug line-clamp-4">
                                 {originalTitle}
                             </p>
                         </div>
@@ -178,19 +178,22 @@ export default function MediaCard(props: MediaCardProps) {
                         </p>
 
                         <div className="flex items-center justify-between">
-                            <span className="text-xs text-muted-foreground">{year}</span>
-                            <Badge
-                                variant="secondary"
-                                className="text-xs px-1.5"
-                            >
-                                <Star
-                                    size={11}
-                                    aria-hidden="true"
-                                    className="text-amber-500 fill-amber-500"
-                                />
-                                <span className="sr-only">Valoración:</span>
-                                {rating.toFixed(1)}
-                            </Badge>
+                            {year && <span className="text-xs text-muted-foreground">{year}</span>}
+
+                            {rating > 0 && (
+                                <Badge
+                                    variant="secondary"
+                                    className="text-xs px-1.5"
+                                >
+                                    <Star
+                                        size={11}
+                                        aria-hidden="true"
+                                        className="text-amber-500 fill-amber-500"
+                                    />
+                                    <span className="sr-only">Valoración:</span>
+                                    {rating.toFixed(1)}
+                                </Badge>
+                            )}
                         </div>
 
                         {isWatchlist && (

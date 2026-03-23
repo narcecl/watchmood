@@ -48,7 +48,7 @@ export default function SearchTab({ apiKey, watchlist, onAdd, onRemove }: Search
                     placeholder="Escribe el nombre de una película o serie para empezar"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    className="h-12"
+                    className="px-4 h-12"
                 />
                 {isFetching && (
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
